@@ -71,6 +71,21 @@ deadline for reference and learning.
 | Runtime E2E Pearson *r* (vs OOF) | 0.981 |
 | Runtime E2E probs std ratio | 1.016 |
 
+| Hardware budget | 4 GB VRAM GPU, 24 cores, 5-fold CV |
+| Runtime container | 1×A100 80 GB, Python 3.12, 3 h limit |
+| Repo weight | 65 fold models (~3.9 GB, not shipped) |
+
+### Figures
+
+![OOF ROC curves: best members and the final 12/13-member blends](figures/roc_oof.png)
+*Figure 1 — OOF ROC curves. The final 13-member blend reaches AUC 0.9684; two of the strongest single members (ResNet50+EMA, DenseNet121) are shown for comparison.*
+
+![Per-member OOF AUC bar chart](figures/member_auc.png)
+*Figure 2 — Per-member OOF AUC. The green bar is the diversity member (#13, EfficientNet-B0) whose individual AUC is lowest yet improves the blend (decorrelation beats strength).*
+
+![Calibration curve of the final blend](figures/calibration_curve.png)
+*Figure 3 — Calibration curve. Points follow the diagonal (good calibration); point size encodes bin count. This is what makes the 0.2472 private log loss possible.*
+
 ### 2.1 What is calibrated here, and why it matters
 
 The **single most important** result of this project is that log-loss
@@ -156,6 +171,9 @@ compile-time-good / runtime-bad submissions) is structurally excluded.
 
 ## 5. Ensemble — z-score blend + Platt calibration (`src/ensemble.py`)
 
+![Ensemble architecture scheme](figures/architecture_scheme.png)
+*Figure 4 — End-to-end architecture: anatomy-aligned DaT scan → 13 members (MIP/AIP/3D inputs, ResNet/DenseNet/EfficientNet) → flip-TTA + 5-fold averaging → z-score blend → Platt to P(abnormal).*
+
 Because the metric is log loss, the ensemble is designed to produce **proper
 probabilities**, not just good AUC:
 
@@ -200,6 +218,32 @@ Member #13's inclusion improved the *blend* OOF log loss 0.2269 → 0.2267
 (−0.0002) through diversity, even though its single-model OOF is weaker —
 the ensemble optimum is *not* the max-AUC-member list. Per-member z-stats
 (μ, σ) used at runtime are embedded in `model/calib.json`.
+
+### Per-member runtime calibration stats (μ, σ)
+
+These are the honest single-fold OOF mean and std of each member's flip-TTA
+logits — the exact numbers written into `model/calib.json` and applied at
+inference for z-score normalisation.
+
+| # | Member | μ (zmean) | σ (zstd) |
+|---|---|---|---|
+| 1 | weights_r50_s7 | 1.786 | 4.818 |
+| 2 | weights_dense_s999 | 1.635 | 6.090 |
+| 3 | weights_str120_dense | −0.375 | 4.884 |
+| 4 | weights_r50_s123 | 0.919 | 4.757 |
+| 5 | weights_r50_str160_128 | −0.340 | 2.716 |
+| 6 | weights_r50_mipaip | 1.157 | 3.931 |
+| 7 | weights_r50_ema | 0.934 | 4.596 |
+| 8 | weights_dense_ema | 0.728 | 5.381 |
+| 9 | weights_str120_r50 | 0.279 | 4.150 |
+| 10 | weights_r50_s999 | 0.865 | 4.451 |
+| 11 | weights_dense_str160_128 | −1.359 | 3.775 |
+| 12 | weights_r18_s999 | 0.633 | 6.008 |
+| 13 | weights_effb0_s1234 | 0.404 | 4.999 |
+
+Note how σ varies 2.7–6.1 across members — without z-normalisation these
+differently-scaled logits could not be averaged meaningfully; the z-transforms
+are what make the linear blend valid.
 
 ---
 
@@ -346,6 +390,9 @@ EfficientNet-B1, large image sizes at 224.
   ≈1.5 expected for the buggy path, vs r=0.981 and ratio 1.016 after the fix.
 - v9/v10 recompute OOF with the exact runtime flips, producing z-stats that
   match runtime logit distribution. Final private test: **0.2472**.
+
+![Submission progression on the platform](figures/submission_progression.png)
+*Figure 5 — As-scored private test log loss. The calibration fix (§6) recovered ~0.095 log loss between v7/v8 (0.3427) and v10 (0.2472).*
 
 ---
 
