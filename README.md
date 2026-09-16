@@ -1,7 +1,14 @@
 # DaT Parkinson's Challenge — Bayesian Ensemble
 
-Top-28 solution for the DrivenData **DaT Parkinson's Challenge** (Sept 2026),
-ranking #28 / hundreds of teams on private test log loss (**0.2472**).
+Top-28 solution for the **DaT Parkinson's Challenge**, a DrivenData competition
+hosted by the French Society of Nuclear Medicine (SFMN) with the Health Data Hub
+and GaelO, part of the *Health Data Challenges* call for projects supported by
+the France 2030 plan.
+
+- **Competition:** https://www.drivendata.org/competitions/311/dat-parkinsons-challenge/
+- **Best score (private test log loss):** **0.2472**
+- **Current rank:** **#28 out of 361 participants**
+- **Live project page:** https://koneboi.github.io/dat-parkinsons/
 
 **Key result:** a 13-member deep learning ensemble over 2D MIP-CNN and 3D
 volume-CNN backbones (ResNet18/50, DenseNet, EfficientNet), with anatomy-aligned
@@ -14,8 +21,8 @@ log loss.
 
 | Metric | Value |
 |---|---|
-| Private test log loss | **0.2472** |
-| Private leaderboard | **#28** |
+| Best score (private test log loss) | **0.2472** |
+| Final rank | **#28 out of 361 participants** |
 | OOF (single-fold honest) log loss | 0.2267 |
 | OOF ROC AUC | 0.9684 |
 | Blend members | 13 |
