@@ -14,7 +14,7 @@ projects funded by the **France 2030** plan.
 - **Best score (private test log loss):** **0.2472**
 - **Current rank:** **#28 out of 361 participants**
 - **Metric:** log loss (error — lower is better); AUROC shown for reference only
-- **Page:** https://koneboi.github.io/dat-parkinsons/
+- **Page:** https://koneboi.github.io/dat-parkinsons.html
 - **Registry:** www.drivendata.org/competitions/311/dat-parkinsons-challenge/
 
 ---
