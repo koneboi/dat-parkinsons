@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Data / artifacts — never commit competition data or model weights
+niftis/
+*.npz
+*.csv
+*.zip
+*_fold_*.pt
+weights*/
+oof_*/
+logs_*.txt
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
