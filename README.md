@@ -1,18 +1,18 @@
 # DaT Parkinson's Challenge — Bayesian Ensemble
 
 ![Competition](https://img.shields.io/badge/DrivenData-DaT%20Parkinson's%20Challenge-blue?style=flat-square)
-![Rank](https://img.shields.io/badge/Rank-%2328%2F361-6600cc?style=flat-square)
-![Log loss](https://img.shields.io/badge/Test%20log%20loss-0.2472-e11d48?style=flat-square)
+![Rank](https://img.shields.io/badge/Rank-%2331%2F361-6600cc?style=flat-square)
+![Log loss](https://img.shields.io/badge/Test%20log%20loss-0.2946-e11d48?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-success?style=flat-square)
 
-**Top-28** solution for the **DaT Parkinson's Challenge** — a DrivenData
+**Top-31** solution for the **DaT Parkinson's Challenge** — a DrivenData
 competition hosted by the **French Society of Nuclear Medicine (SFMN)** with the
 **Health Data Hub** and **GaelO**, part of the *Health Data Challenges* call for
 projects funded by the **France 2030** plan.
 
 - **Competition:** https://www.drivendata.org/competitions/311/dat-parkinsons-challenge/
-- **Best score (private test log loss):** **0.2472**
-- **Current rank:** **#28 out of 361 participants**
+- **Final score (private test log loss):** **0.2946**
+- **Final rank:** **#31 out of 361 participants**
 - **Metric:** log loss (error — lower is better); AUROC shown for reference only
 - **Page:** https://koneboi.github.io/dat-parkinsons.html
 - **Registry:** www.drivendata.org/competitions/311/dat-parkinsons-challenge/
@@ -60,8 +60,9 @@ deadline for reference and learning.
 
 | Metric | Value |
 |---|---|
-| **Private test log loss** | **0.2472** |
-| **Final rank** | **#28 / 361 participants** |
+| **Private test log loss (final)** | **0.2946** |
+| **Private test AUROC (final)** | **0.9432** |
+| **Final rank** | **#31 / 361 participants** |
 | OOF log loss (honest single-fold) | 0.2267 |
 | OOF ROC AUC | 0.9684 |
 | Training set | 1,362 scans (747 pathologic / 615 normal) |
@@ -84,7 +85,7 @@ deadline for reference and learning.
 *Figure 2 — Per-member OOF AUC. The green bar is the diversity member (#13, EfficientNet-B0) whose individual AUC is lowest yet improves the blend (decorrelation beats strength).*
 
 ![Calibration curve of the final blend](figures/calibration_curve.png)
-*Figure 3 — Calibration curve. Points follow the diagonal (good calibration); point size encodes bin count. This is what makes the 0.2472 private log loss possible.*
+*Figure 3 — Calibration curve. Points follow the diagonal (good calibration); point size encodes bin count. Calibration quality is exactly what log loss rewards; without it the final score would be far worse.*
 
 ### 2.1 What is calibrated here, and why it matters
 
@@ -263,8 +264,10 @@ had σ ≈ 4.82 — so runtime z-scores were ~1.53× larger than the Platt fit
 expected, making predictions **severely overconfident** and inflating log loss.
 
 **Fix:** recompute OOF (and thus every μ, σ and the Platt fit) using the *exact*
-runtime flip dims `[3],[2]`. This recovered ~0.095 of log loss, and is the
-reason v10 scored 0.2472 rather than ~0.34.
+runtime flip dims `[3],[2]`. This recovered ~0.095 of log loss at development
+time, and is the reason the calibration-fixed v10 scored well (live 0.2472)
+rather than ~0.34; the final private-leaderboard standing after rescoring is
+0.2946.
 
 **Guaranteeing no recurrence** — the verification gauntlet that caught it:
 1. **Runtime E2E run** — execute the *packaged* `main.py` on scans and compare
@@ -389,10 +392,11 @@ EfficientNet-B1, large image sizes at 224.
 - Diagnostic: E2E runtime-vs-OOF scale check. Found Pearson ≈0.5 and std ratio
   ≈1.5 expected for the buggy path, vs r=0.981 and ratio 1.016 after the fix.
 - v9/v10 recompute OOF with the exact runtime flips, producing z-stats that
-  match runtime logit distribution. Final private test: **0.2472**.
+  match runtime logit distribution. Live private test: **0.2472** — the final
+  private-leaderboard standing after rescoring: **0.2946**.
 
 ![Submission progression on the platform](figures/submission_progression.png)
-*Figure 5 — As-scored private test log loss. The calibration fix (§6) recovered ~0.095 log loss between v7/v8 (0.3427) and v10 (0.2472).*
+*Figure 5 — As-scored private test log loss. The calibration fix (§6) recovered ~0.095 log loss between v7/v8 (0.3427) and v10 (0.2472 live).*
 
 ---
 
